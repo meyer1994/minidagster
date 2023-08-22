@@ -1,29 +1,26 @@
 from dagster import *
 
+# When `b_first` is materialized, it will materialize `b_second` and 
+# `b_third`
 
-eager = AutoMaterializePolicy.eager()
-
-
-@asset(
-    auto_materialize_policy=eager,
-)
-def b_download(context: OpExecutionContext) -> str:
+@asset
+def b_first(context: OpExecutionContext) -> str:
     key = 'download'
     context.log.info('Download: %s', key)
     return key
 
 
 @asset(
-    auto_materialize_policy=eager,
+    auto_materialize_policy=AutoMaterializePolicy.eager(),
 )
-def b_parse(context: OpExecutionContext, b_download: str) -> str:
-    context.log.info('Parse: %s', b_download)
-    return b_download * 2
+def b_second(context: OpExecutionContext, b_first: str) -> str:
+    context.log.info('Parse: %s', b_first)
+    return b_first * 2
 
 
 @asset(
-    auto_materialize_policy=eager,
+    auto_materialize_policy=AutoMaterializePolicy.eager(),
 )
-def b_index(context: OpExecutionContext, b_parse: str) -> list[str]:
-    context.log.info('Index: %s', b_parse)
-    return [b_parse] * 3
+def b_third(context: OpExecutionContext, b_second: str) -> list[str]:
+    context.log.info('Index: %s', b_second)
+    return [b_second] * 3

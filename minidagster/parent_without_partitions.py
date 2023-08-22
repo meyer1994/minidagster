@@ -1,23 +1,19 @@
 from dagster import *
 
+# When `d_first` gets materialized, it will trigger materialization of the
+# latest partition of `d_second`
 
-daily = DailyPartitionsDefinition(start_date='2023-08-01')
-eager = AutoMaterializePolicy.eager()
-
-
-@asset(
-    auto_materialize_policy=eager,
-)
-def d_download(context: OpExecutionContext) -> str:
-    key = 'd_download'
+@asset
+def d_first(context: OpExecutionContext) -> str:
+    key = 'd_first'
     context.log.info('Download: %s', key)
     return key
 
 
 @asset(
-    partitions_def=daily,
-    auto_materialize_policy=eager,
+    partitions_def=DailyPartitionsDefinition(start_date='2023-08-01'),
+    auto_materialize_policy=AutoMaterializePolicy.eager(),
 )
-def d_parse(context: OpExecutionContext, d_download: str) -> str:
-    context.log.info('Parse: %s', d_download)
-    return d_download * 2
+def d_second(context: OpExecutionContext, d_first: str) -> str:
+    context.log.info('Parse: %s', d_first)
+    return d_first * 2

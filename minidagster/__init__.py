@@ -8,6 +8,8 @@ from . import (
     linear_without_partitions,
     parent_with_partitions,
     parent_without_partitions,
+    diamond_with_partitions,
+    resources,
 )
 
 
@@ -35,14 +37,24 @@ parent_without_partitions = load_assets_from_modules(
     group_name='parent_without_partitions',
 )
 
+diamond_with_partitions = load_assets_from_modules(
+    modules=[diamond_with_partitions],
+    key_prefix='diamond_with_partitions',
+    group_name='diamond_with_partitions',
+)
+
 
 assets = []
 assets += linear_with_partitions
 assets += linear_without_partitions
 assets += parent_with_partitions
 assets += parent_without_partitions
+assets += diamond_with_partitions
 
 
 defs = Definitions(
-    assets=assets
+    assets=assets,
+    resources={
+        'noop': resources.noop,
+    }
 )

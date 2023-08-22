@@ -1,35 +1,49 @@
 from dagster import *
 
-
-daily = DailyPartitionsDefinition(start_date='2023-08-01')
-eager = AutoMaterializePolicy.eager()
-
+# When any partition of `c_first` is materialized, it will trigger `c_second`
 
 @asset(
-    partitions_def=daily,
-    auto_materialize_policy=eager,
+    partitions_def=DailyPartitionsDefinition(start_date='2023-08-01'),
 )
-def c_download(context: OpExecutionContext) -> str:
+def c_first(context: OpExecutionContext) -> str:
     key = context.asset_partition_key_for_output()
     context.log.info('Download: %s', key)
     return key
 
 
 @asset(
-    # deps=[c_download],  # does not trigger auto materialization
-    auto_materialize_policy=eager,
+    # deps=[c_first],  # does not work, maybe a bug?
+    auto_materialize_policy=AutoMaterializePolicy.eager(),
     ins={
         'val': AssetIn(
-            key=c_download.key,
-            # input_manager_key='noop',  # we can create a noop io manager for
-                                       # when we do not care about the input.
-                                       # this is a HACKY workaround
-            partition_mapping=LastPartitionMapping(),  # needs a mapping for 
-                                                       # auto materialization
-                                                       # to work
-        )
-    }
+            key=c_first.key,
+            partition_mapping=LastPartitionMapping(),  # Must pass a mapping
+        ),
+    },
 )
-def c_parse(context: OpExecutionContext, val: Any) -> str:
-    context.log.info('Parse: %s', val)
+def c_second(context: OpExecutionContext, val: Any) -> str:
+    context.log.info('Index: %s', val)
     return val * 2
+
+
+# The example below shows a way that you can define dependencies without having
+# the data loaded. We do this by creating a dummy, noop, IO manager. This way,
+# dagster will, in fact, try to load the asset, but as the IO manager does
+# nothing, it will load nothing...
+#
+# The above behaviour _should_ be working by using the `deps` paramter of 
+# `@asset`. However, this does not work. Not sure why...
+#
+# @asset(
+#     auto_materialize_policy=AutoMaterializePolicy.eager(),
+#     ins={
+#         'val': AssetIn(
+#             key=c_first.key,
+#             partition_mapping=LastPartitionMapping(),
+#             input_manager_key='noop'
+#         ),
+#     },
+# )
+# def c_second2(context: OpExecutionContext, val: Any) -> str:
+#     context.log.info('Index: %s', val)
+#     return val * 2
