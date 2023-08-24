@@ -9,6 +9,7 @@ from . import (
     parent_with_partitions,
     parent_without_partitions,
     diamond_with_partitions,
+    diamond_mixed,
     resources,
 )
 
@@ -43,6 +44,12 @@ diamond_with_partitions = load_assets_from_modules(
     group_name='diamond_with_partitions',
 )
 
+diamond_mixed = load_assets_from_modules(
+    modules=[diamond_mixed],
+    key_prefix='diamond_mixed',
+    group_name='diamond_mixed',
+)
+
 
 assets = []
 assets += linear_with_partitions
@@ -50,6 +57,7 @@ assets += linear_without_partitions
 assets += parent_with_partitions
 assets += parent_without_partitions
 assets += diamond_with_partitions
+assets += diamond_mixed
 
 
 defs = Definitions(

@@ -6,7 +6,7 @@ from dagster import *
 @asset
 def d_first(context: OpExecutionContext) -> str:
     key = 'd_first'
-    context.log.info('Download: %s', key)
+    context.log.info('%s', key)
     return key
 
 
@@ -15,5 +15,5 @@ def d_first(context: OpExecutionContext) -> str:
     auto_materialize_policy=AutoMaterializePolicy.eager(),
 )
 def d_second(context: OpExecutionContext, d_first: str) -> str:
-    context.log.info('Parse: %s', d_first)
+    context.log.info('%s', d_first)
     return d_first * 2

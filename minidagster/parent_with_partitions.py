@@ -7,7 +7,7 @@ from dagster import *
 )
 def c_first(context: OpExecutionContext) -> str:
     key = context.asset_partition_key_for_output()
-    context.log.info('Download: %s', key)
+    context.log.info('%s', key)
     return key
 
 
@@ -22,7 +22,7 @@ def c_first(context: OpExecutionContext) -> str:
     },
 )
 def c_second(context: OpExecutionContext, val: Any) -> str:
-    context.log.info('Index: %s', val)
+    context.log.info('%s', val)
     return val * 2
 
 
@@ -45,5 +45,5 @@ def c_second(context: OpExecutionContext, val: Any) -> str:
 #     },
 # )
 # def c_second2(context: OpExecutionContext, val: Any) -> str:
-#     context.log.info('Index: %s', val)
+#     context.log.info('%s', val)
 #     return val * 2
