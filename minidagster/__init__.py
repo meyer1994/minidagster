@@ -8,6 +8,7 @@ from . import (
     linear_without_partitions,
     mapping_multi_dynamic_partitions,
     mapping_multi_dynamic_partitions_complex,
+    mapping_multi_dynamic_partitions_complexer,
     parent_with_partitions,
     parent_without_partitions,
     diamond_with_partitions,
@@ -56,6 +57,12 @@ mapping_multi_dynamic_partitions_complex_assets = load_assets_from_modules(
     group_name='mapping_multi_dynamic_partitions_complex',
 )
 
+mapping_multi_dynamic_partitions_complexer_assets = load_assets_from_modules(
+    modules=[mapping_multi_dynamic_partitions_complexer],
+    group_name='mapping_multi_dynamic_partitions_complexer',
+)
+
+
 
 assets = []
 assets += linear_with_partitions_assets
@@ -66,6 +73,7 @@ assets += diamond_with_partitions_assets
 assets += diamond_mixed_assets
 assets += mapping_multi_dynamic_partitions_assets
 assets += mapping_multi_dynamic_partitions_complex_assets
+assets += mapping_multi_dynamic_partitions_complexer_assets
 
 
 defs = Definitions(
