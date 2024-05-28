@@ -1,11 +1,12 @@
-from datetime import datetime
 from collections import defaultdict
+from datetime import datetime
+from typing import Optional
 
-from dagster import *
+from dagster import AssetKey, AssetPartitionStatus, PartitionMapping
 from dagster._core.definitions.partition import (
-    PartitionsSubset,
+    DefaultPartitionsSubset,
     DynamicPartitionsDefinition,
-    DefaultPartitionsSubset
+    PartitionsSubset,
 )
 from dagster._core.definitions.partition_mapping import UpstreamPartitionsResult
 from dagster._core.instance import DynamicPartitionsStore
@@ -22,7 +23,7 @@ class GroupByUpstreamPrefix(PartitionMapping):
         upstream_partitions_subset: PartitionsSubset,
         downstream_partitions_def: DynamicPartitionsDefinition,
         current_time: Optional[datetime] = None,
-        dynamic_partitions_store: Optional[DynamicPartitionsStore] = None
+        dynamic_partitions_store: Optional[DynamicPartitionsStore] = None,
     ) -> PartitionsSubset:
         raise NotImplementedError()
 
@@ -31,7 +32,7 @@ class GroupByUpstreamPrefix(PartitionMapping):
         downstream_partitions_subset: Optional[PartitionsSubset],
         upstream_partitions_def: DynamicPartitionsDefinition,
         current_time: Optional[datetime] = None,
-        dynamic_partitions_store: Optional[DynamicPartitionsStore] = None
+        dynamic_partitions_store: Optional[DynamicPartitionsStore] = None,
     ) -> UpstreamPartitionsResult:
         # First, we get all partitions for the dynamic partiton definition
         partitions = dynamic_partitions_store.get_dynamic_partitions(
@@ -68,7 +69,6 @@ class GroupByUpstreamPrefix(PartitionMapping):
         return UpstreamPartitionsResult(subset, set())
 
 
-
 class GroupByDownstreamSuffix(PartitionMapping):
     def __init__(self, separator: str, upstream_key: AssetKey):
         super(GroupByDownstreamSuffix, self).__init__()
@@ -80,7 +80,7 @@ class GroupByDownstreamSuffix(PartitionMapping):
         upstream_partitions_subset: PartitionsSubset,
         downstream_partitions_def: DynamicPartitionsDefinition,
         current_time: Optional[datetime] = None,
-        dynamic_partitions_store: Optional[DynamicPartitionsStore] = None
+        dynamic_partitions_store: Optional[DynamicPartitionsStore] = None,
     ) -> PartitionsSubset:
         raise NotImplementedError()
 
@@ -89,7 +89,7 @@ class GroupByDownstreamSuffix(PartitionMapping):
         downstream_partitions_subset: Optional[PartitionsSubset],
         upstream_partitions_def: DynamicPartitionsDefinition,
         current_time: Optional[datetime] = None,
-        dynamic_partitions_store: Optional[DynamicPartitionsStore] = None
+        dynamic_partitions_store: Optional[DynamicPartitionsStore] = None,
     ) -> UpstreamPartitionsResult:
         downstream = set()
         for i in downstream_partitions_subset.get_partition_keys():

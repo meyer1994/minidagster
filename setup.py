@@ -2,10 +2,19 @@ from setuptools import find_packages, setup
 
 setup(
     name="minidagster",
-    packages=find_packages(exclude=["minidagster_tests"]),
+    packages=find_packages(
+        exclude=[
+            "minidagster_tests",
+        ],
+    ),
     install_requires=[
         "dagster",
-        "dagster-cloud"
+        "dagster-cloud",
     ],
-    extras_require={"dev": ["dagit", "pytest"]},
+    extras_require={
+        "dev": [
+            "dagster-webserver",
+            "pytest",
+        ],
+    },
 )

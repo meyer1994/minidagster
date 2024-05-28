@@ -1,25 +1,32 @@
-import random
+from dagster import (
+    AssetIn,
+    AutoMaterializePolicy,
+    DynamicPartitionsDefinition,
+    MultiPartitionsDefinition,
+    MultiToSingleDimensionPartitionMapping,
+    OpExecutionContext,
+    SensorResult,
+    asset,
+    sensor,
+)
 
-from dagster import *
-
-
-docs = DynamicPartitionsDefinition(name='docs')
-grouped = DynamicPartitionsDefinition(name='grouped')
-partition = MultiPartitionsDefinition({'grouped': grouped, 'docs': docs})
+docs = DynamicPartitionsDefinition(name="docs")
+grouped = DynamicPartitionsDefinition(name="grouped")
+partition = MultiPartitionsDefinition({"grouped": grouped, "docs": docs})
 
 
 @sensor()
 def random_docs_sensor():
-    """ Dummy sensor to create random partitions """
-    keys = [f'{i:03d}' for i in range(10)]
+    """Dummy sensor to create random partitions"""
+    keys = [f"{i:03d}" for i in range(10)]
     requests = docs.build_add_request(keys)
     return SensorResult(dynamic_partitions_requests=[requests])
 
 
 @sensor()
 def random_grouped_sensor():
-    """ Dummy sensor to create random partitions """
-    keys =['a', 'b', 'c']
+    """Dummy sensor to create random partitions"""
+    keys = ["a", "b", "c"]
     requests = grouped.build_add_request(keys)
     return SensorResult(dynamic_partitions_requests=[requests])
 
@@ -35,9 +42,9 @@ def g_first(context: OpExecutionContext) -> str:
 @asset(
     partitions_def=grouped,
     ins={
-        'val': AssetIn(
+        "val": AssetIn(
             key=g_first.key,
-            partition_mapping=MultiToSingleDimensionPartitionMapping('grouped'),
+            partition_mapping=MultiToSingleDimensionPartitionMapping("grouped"),
         ),
     },
     auto_materialize_policy=AutoMaterializePolicy.eager(),
