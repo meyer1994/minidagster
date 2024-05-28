@@ -8,12 +8,12 @@ setup(
         ],
     ),
     install_requires=[
-        "dagster",
-        "dagster-cloud",
+        "dagster==1.7.3",
+        "dagster-cloud==1.7.3",
     ],
     extras_require={
         "dev": [
-            "dagster-webserver",
+            "dagster-webserver==1.7.3",
             "pytest",
         ],
     },

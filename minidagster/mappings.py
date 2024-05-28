@@ -2,10 +2,14 @@ from collections import defaultdict
 from datetime import datetime
 from typing import Optional
 
-from dagster import AssetKey, AssetPartitionStatus, PartitionMapping
+from dagster import (
+    AssetKey,
+    AssetPartitionStatus,
+    PartitionMapping,
+    PartitionsDefinition,
+)
 from dagster._core.definitions.partition import (
     DefaultPartitionsSubset,
-    DynamicPartitionsDefinition,
     PartitionsSubset,
 )
 from dagster._core.definitions.partition_mapping import UpstreamPartitionsResult
@@ -18,10 +22,15 @@ class GroupByUpstreamPrefix(PartitionMapping):
         self.separator = separator
         self.upstream_key = upstream_key
 
+    @property
+    def description(self) -> str:
+        return ""
+
     def get_downstream_partitions_for_partitions(
         self,
         upstream_partitions_subset: PartitionsSubset,
-        downstream_partitions_def: DynamicPartitionsDefinition,
+        upstream_partitions_def: PartitionsDefinition,
+        downstream_partitions_def: PartitionsDefinition,
         current_time: Optional[datetime] = None,
         dynamic_partitions_store: Optional[DynamicPartitionsStore] = None,
     ) -> PartitionsSubset:
@@ -30,10 +39,14 @@ class GroupByUpstreamPrefix(PartitionMapping):
     def get_upstream_mapped_partitions_result_for_partitions(
         self,
         downstream_partitions_subset: Optional[PartitionsSubset],
-        upstream_partitions_def: DynamicPartitionsDefinition,
+        downstream_partitions_def: Optional[PartitionsDefinition],
+        upstream_partitions_def: PartitionsDefinition,
         current_time: Optional[datetime] = None,
         dynamic_partitions_store: Optional[DynamicPartitionsStore] = None,
     ) -> UpstreamPartitionsResult:
+        assert dynamic_partitions_store
+        assert upstream_partitions_def.name
+
         # First, we get all partitions for the dynamic partiton definition
         partitions = dynamic_partitions_store.get_dynamic_partitions(
             partitions_def_name=upstream_partitions_def.name
@@ -65,8 +78,8 @@ class GroupByUpstreamPrefix(PartitionMapping):
             if k in downstream_partitions_subset:
                 downstream |= v
 
-        subset = DefaultPartitionsSubset(upstream_partitions_def, downstream)
-        return UpstreamPartitionsResult(subset, set())
+        subset = DefaultPartitionsSubset(downstream)
+        return UpstreamPartitionsResult(subset, [])
 
 
 class GroupByDownstreamSuffix(PartitionMapping):
@@ -75,10 +88,15 @@ class GroupByDownstreamSuffix(PartitionMapping):
         self.separator = separator
         self.upstream_key = upstream_key
 
+    @property
+    def description(self) -> str:
+        return ""
+
     def get_downstream_partitions_for_partitions(
         self,
         upstream_partitions_subset: PartitionsSubset,
-        downstream_partitions_def: DynamicPartitionsDefinition,
+        upstream_partitions_def: PartitionsDefinition,
+        downstream_partitions_def: PartitionsDefinition,
         current_time: Optional[datetime] = None,
         dynamic_partitions_store: Optional[DynamicPartitionsStore] = None,
     ) -> PartitionsSubset:
@@ -87,7 +105,8 @@ class GroupByDownstreamSuffix(PartitionMapping):
     def get_upstream_mapped_partitions_result_for_partitions(
         self,
         downstream_partitions_subset: Optional[PartitionsSubset],
-        upstream_partitions_def: DynamicPartitionsDefinition,
+        downstream_partitions_def: Optional[PartitionsDefinition],
+        upstream_partitions_def: PartitionsDefinition,
         current_time: Optional[datetime] = None,
         dynamic_partitions_store: Optional[DynamicPartitionsStore] = None,
     ) -> UpstreamPartitionsResult:
@@ -96,5 +115,5 @@ class GroupByDownstreamSuffix(PartitionMapping):
             *_, suffix = i.split(self.separator)
             downstream.add(suffix)
 
-        subset = DefaultPartitionsSubset(upstream_partitions_def, downstream)
-        return UpstreamPartitionsResult(subset, set())
+        subset = DefaultPartitionsSubset(downstream)
+        return UpstreamPartitionsResult(subset, [])
