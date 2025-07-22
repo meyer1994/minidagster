@@ -8,7 +8,7 @@ setup(
         ],
     ),
     install_requires=[
-        "dagster==1.7.3",
+        "dagster==1.10.16",
         "dagster-cloud==1.7.3",
     ],
     extras_require={
